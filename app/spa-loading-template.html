@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <style>
+    body {
+      background-color: #020617;
+      /* Slate 950 */
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+      font-family: system-ui, -apple-system, sans-serif;
+    }
+
+    .container {
+      text-align: center;
+      position: relative;
+    }
+
+    /* Bolt Icon Styling */
+    .logo-container {
+      position: relative;
+      width: 120px;
+      height: 120px;
+      margin: 0 auto 30px;
+    }
+
+    .bolt {
+      width: 100%;
+      height: 100%;
+      fill: none;
+      stroke: #3b82f6;
+      /* Blue 500 */
+      stroke-width: 4;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-dasharray: 200;
+      stroke-dashoffset: 200;
+      animation: draw 2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+      filter: drop-shadow(0 0 10px rgba(59, 130, 246, 0.5));
+    }
+
+    .name {
+      color: white;
+      font-size: 2.5rem;
+      font-weight: 900;
+      letter-spacing: -0.05em;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1) 0.5s forwards;
+    }
+
+    .subtitle {
+      color: #64748b;
+      /* Slate 500 */
+      font-size: 0.875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.3em;
+      margin-top: 10px;
+      opacity: 0;
+      animation: fadeIn 1s ease-out 1s forwards;
+    }
+
+    .progress-track {
+      width: 200px;
+      height: 2px;
+      background: rgba(255, 255, 255, 0.05);
+      margin: 40px auto 0;
+      border-radius: 10px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .progress-bar {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, #3b82f6, #2dd4bf);
+      animation: progress 3s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+      box-shadow: 0 0 10px rgba(45, 212, 191, 0.5);
+    }
+
+    @keyframes draw {
+      to {
+        stroke-dashoffset: 0;
+      }
+    }
+
+    @keyframes fadeInUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeIn {
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes progress {
+      0% {
+        width: 0%;
+        left: 0;
+      }
+
+      50% {
+        width: 100%;
+        left: 0;
+      }
+
+      100% {
+        width: 0%;
+        left: 100%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="logo-container">
+      <svg viewBox="0 0 24 24" class="bolt">
+        <path d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
+      </svg>
+    </div>
+    <div class="name">RhyseForge</div>
+    <div class="subtitle">RHYSE Tech</div>
+    <div class="progress-track">
+      <div class="progress-bar"></div>
+    </div>
+  </div>
+</body>
+
+</html>

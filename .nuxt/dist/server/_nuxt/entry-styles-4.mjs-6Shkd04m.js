@@ -1,0 +1,5 @@
+const error_vue_vue_type_style_index_0_scoped_4343c65e_lang = ".glass-404[data-v-4343c65e]{background:linear-gradient(180deg,#fffffff2,#ffffff4d);-webkit-background-clip:text;-webkit-text-fill-color:transparent;-webkit-text-stroke:.5px hsla(0,0%,100%,.4);filter:drop-shadow(0 0 10px rgba(45,212,191,.2))}.rays[data-v-4343c65e]{animation:rotate-rays-4343c65e 120s linear infinite;background:conic-gradient(from 0deg at 50% 50%,transparent 0deg,rgba(45,212,191,.1) 10deg,transparent 20deg,rgba(45,212,191,.05) 50deg,transparent 80deg,rgba(45,212,191,.1) 120deg,transparent 150deg,rgba(45,212,191,.05) 200deg,transparent 240deg,rgba(45,212,191,.1) 300deg,transparent 1turn);transform-origin:center}@keyframes rotate-rays-4343c65e{to{transform:rotate(1turn)}}.animate-fade-in[data-v-4343c65e]{animation:fadeIn-4343c65e 1s ease-out forwards}@keyframes fadeIn-4343c65e{0%{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}.nav-link-style[data-v-4343c65e]{font-family:Inter,sans-serif}";
+export {
+  error_vue_vue_type_style_index_0_scoped_4343c65e_lang as default
+};
+//# sourceMappingURL=entry-styles-4.mjs-6Shkd04m.js.map

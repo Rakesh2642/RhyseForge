@@ -1,0 +1,26 @@
+const interopDefault = r => r.default || r || []
+export default {
+  "node_modules/nuxt/dist/app/entry.js": () => import('./_nuxt/entry-styles.42__gcQ_.mjs').then(interopDefault),
+  "node_modules/@nuxt/ui/dist/runtime/components/elements/Carousel.vue": () => import('./_nuxt/Carousel-styles.YocY_z3X.mjs').then(interopDefault),
+  "node_modules/@nuxt/ui/dist/runtime/components/forms/Select.vue": () => import('./_nuxt/Select-styles.D58nX-1h.mjs').then(interopDefault),
+  "node_modules/@nuxt/ui/dist/runtime/components/navigation/CommandPaletteGroup.vue": () => import('./_nuxt/CommandPaletteGroup-styles.o60B6jt9.mjs').then(interopDefault),
+  "node_modules/@nuxt/ui/dist/runtime/components/elements/Progress.vue": () => import('./_nuxt/Progress-styles.EsAb5WKy.mjs').then(interopDefault),
+  "node_modules/@nuxt/ui/dist/runtime/components/elements/Carousel.vue?vue&type=style&index=0&scoped=7b800b32&lang.css": () => import('./_nuxt/Carousel-styles.YocY_z3X.mjs').then(interopDefault),
+  "node_modules/@nuxt/ui/dist/runtime/components/forms/Select.vue?vue&type=style&index=0&scoped=cbc9516f&lang.css": () => import('./_nuxt/Select-styles.D58nX-1h.mjs').then(interopDefault),
+  "node_modules/@nuxt/ui/dist/runtime/components/navigation/CommandPaletteGroup.vue?vue&type=style&index=0&lang.css": () => import('./_nuxt/CommandPaletteGroup-styles.o60B6jt9.mjs').then(interopDefault),
+  "node_modules/@nuxt/ui/dist/runtime/components/elements/Progress.vue?vue&type=style&index=0&scoped=e0a22531&lang.css": () => import('./_nuxt/Progress-styles.EsAb5WKy.mjs').then(interopDefault),
+  "app.vue": () => import('./_nuxt/app-styles.Bj9lQFoD.mjs').then(interopDefault),
+  "error.vue": () => import('./_nuxt/error-styles.ehUIfvBS.mjs').then(interopDefault),
+  "app.vue?vue&type=style&index=0&lang.css": () => import('./_nuxt/app-styles.Bj9lQFoD.mjs').then(interopDefault),
+  "error.vue?vue&type=style&index=0&scoped=4343c65e&lang.css": () => import('./_nuxt/error-styles.ehUIfvBS.mjs').then(interopDefault),
+  "pages/profile.vue": () => import('./_nuxt/profile-styles.D-l9RO87.mjs').then(interopDefault),
+  "pages/exam/[id].vue": () => import('./_nuxt/_id_-styles.Dg1oxiLW.mjs').then(interopDefault),
+  "pages/leaderboard.vue": () => import('./_nuxt/leaderboard-styles.D23_2Qz_.mjs').then(interopDefault),
+  "pages/dashboard/index.vue": () => import('./_nuxt/index-styles.V-7lViS9.mjs').then(interopDefault),
+  "pages/profile.vue?vue&type=style&index=0&scoped=c7f4e22e&lang.css": () => import('./_nuxt/profile-styles.D-l9RO87.mjs').then(interopDefault),
+  "pages/leaderboard.vue?vue&type=style&index=0&scoped=d5636b52&lang.css": () => import('./_nuxt/leaderboard-styles.D23_2Qz_.mjs').then(interopDefault),
+  "pages/dashboard/index.vue?vue&type=style&index=0&scoped=e11fa174&lang.css": () => import('./_nuxt/index-styles.V-7lViS9.mjs').then(interopDefault),
+  "pages/exam/[id].vue?vue&type=style&index=0&scoped=e0ed170e&lang.css": () => import('./_nuxt/_id_-styles.Dg1oxiLW.mjs').then(interopDefault),
+  "layouts/default.vue": () => import('./_nuxt/default-styles.CD_jmMH9.mjs').then(interopDefault),
+  "layouts/default.vue?vue&type=style&index=0&scoped=36c3aa2c&lang.css": () => import('./_nuxt/default-styles.CD_jmMH9.mjs').then(interopDefault)
+}
