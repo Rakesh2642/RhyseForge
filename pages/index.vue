@@ -63,7 +63,7 @@
         </UCard>
       </div>
       
-      <div v-if="data?.exams && data.exams.length === 0" class="text-center py-12">
+      <div v-if="data && Array.isArray(data.exams) && data.exams.length === 0" class="text-center py-12">
         <UIcon name="i-heroicons-inbox" class="text-6xl text-gray-300 dark:text-gray-600 mb-4" />
         <h3 class="text-xl text-gray-500 dark:text-gray-400">No published exams found.</h3>
         <p class="text-sm text-gray-400 mt-2">Log in as admin to create or extract exams from images.</p>
