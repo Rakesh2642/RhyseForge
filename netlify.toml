@@ -2,3 +2,6 @@
   command = "npm run build"
   publish = "dist"
   functions = ".netlify/functions-internal"
+
+[functions]
+  included_files = ["prisma/dev.db", "prisma/schema.prisma"]
