@@ -10,8 +10,7 @@ if (process.env.NODE_ENV === 'production') {
   // Lambda unpacks files unpredictably. Search all possible mount locations:
   const possiblePaths = [
     path.join(process.cwd(), 'prisma', 'dev.db'),
-    path.join(process.cwd(), 'dev.db'),
-    path.join(__dirname, '..', '..', 'prisma', 'dev.db')
+    path.join(process.cwd(), 'dev.db')
   ]
 
   const foundPath = possiblePaths.find(p => fs.existsSync(p))
