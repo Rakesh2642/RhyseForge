@@ -7,29 +7,41 @@ let prisma: PrismaClient
 if (process.env.NODE_ENV === 'production') {
   const tmpDbPath = path.join('/tmp', 'dev.db')
   
-  // Lambda unpacks files unpredictably. Search all possible mount locations:
+  // Search for the DB file in multiple locations relative to the function runtime
   const possiblePaths = [
     path.join(process.cwd(), 'prisma', 'dev.db'),
-    path.join(process.cwd(), 'dev.db')
+    path.join(process.cwd(), 'server', 'prisma', 'dev.db'), // Nitro's likely structure
+    path.join(process.cwd(), '..', 'prisma', 'dev.db'),      // Alternative
+    path.join('/var/task', 'prisma', 'dev.db'),           // Lambda root
+    'dev.db'                                                // Fallback to local
   ]
 
-  const foundPath = possiblePaths.find(p => fs.existsSync(p))
+  console.log('[Prisma Diagnostics] Searching for SQLite DB in possible paths...')
+  let foundPath = possiblePaths.find(p => {
+    const exists = fs.existsSync(p)
+    if (exists) console.log(`[Prisma Diagnostics] Found DB at: ${p}`)
+    return exists
+  })
 
   try {
-    // Netlify's serverless environment is completely READ-ONLY. 
-    // SQLite crashes instantly because it cannot write its WAL logging file.
-    // We MUST copy it to the only writable lambda directory: /tmp
     if (foundPath && !fs.existsSync(tmpDbPath)) {
-      console.log('Copying SQLite DB to writable temporary storage: ' + tmpDbPath)
+      console.log('[Prisma Diagnostics] Copying SQLite DB to writable temporary storage: ' + tmpDbPath)
       fs.copyFileSync(foundPath, tmpDbPath)
+      // Ensure write permissions
+      fs.chmodSync(tmpDbPath, 0o666)
+    } else if (fs.existsSync(tmpDbPath)) {
+      console.log('[Prisma Diagnostics] DB already exists in /tmp, using existing copy.')
+    } else {
+      console.error('[Prisma Diagnostics] CRITICAL: Source SQLite DB file not found in any expected location.')
     }
   } catch (e) {
-    console.error("Failed to copy DB to /tmp", e)
+    console.error("[Prisma Diagnostics] Failed to copy DB to /tmp", e)
   }
 
   // Connect cleanly to the guaranteed read/writable file
   const activePath = fs.existsSync(tmpDbPath) ? tmpDbPath : (foundPath || 'dev.db')
-  
+  console.log(`[Prisma Diagnostics] Final active database path: ${activePath}`)
+
   prisma = new PrismaClient({
     datasources: {
       db: { url: `file:${activePath}` }
