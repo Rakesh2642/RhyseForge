@@ -1,5 +1,6 @@
 import { defineEventHandler, readBody, createError, getHeader } from 'h3'
 import { getServerSession } from '../../utils/auth'
+import prisma from '../../utils/prisma'
 
 /**
  * Plan definitions with INR pricing (Indian standard).
@@ -25,7 +26,7 @@ export default defineEventHandler(async (event) => {
   }
 
   const body = await readBody(event)
-  const { plan, deviceId } = body
+  const { plan, deviceId, examId } = body
 
   // ── Validate plan ──
   if (!plan || !PLANS[plan]) {
@@ -53,7 +54,7 @@ export default defineEventHandler(async (event) => {
   }
 
   // ── Device binding enforcement ──
-  if (user.boundDeviceId && user.boundDeviceId !== deviceId) {
+  if (user.role !== 'ADMIN' && user.boundDeviceId && user.boundDeviceId !== deviceId) {
     throw createError({
       statusCode: 403,
       statusMessage: 'Device mismatch. Purchases must be made from your registered device. Contact support@rhyseforge.com for help.'
@@ -73,6 +74,30 @@ export default defineEventHandler(async (event) => {
   }
 
   const selectedPlan = PLANS[plan]
+  let beginningExamId: string | null = null
+
+  if (plan === 'BEGINNING') {
+    if (!examId) {
+      throw createError({
+        statusCode: 400,
+        statusMessage: 'Please select one certification module for the Beginning plan.'
+      })
+    }
+
+    const selectedExam = await prisma.exam.findFirst({
+      where: { id: examId, status: 'published' },
+      select: { id: true }
+    })
+
+    if (!selectedExam) {
+      throw createError({
+        statusCode: 400,
+        statusMessage: 'Selected module is invalid or not published.'
+      })
+    }
+
+    beginningExamId = selectedExam.id
+  }
 
   // ── Check for existing pending request ──
   const existingPending = await prisma.subscription.findFirst({
@@ -90,6 +115,7 @@ export default defineEventHandler(async (event) => {
     data: {
       userId: user.id,
       plan,
+      beginningExamId,
       amount: selectedPlan.price,
       currency: 'INR',
       deviceId,

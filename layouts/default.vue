@@ -106,8 +106,8 @@
           </div>
           <div class="flex gap-4 md:gap-6 text-xs md:text-sm">
             <NuxtLink to="/pricing" class="hover:text-primary-500 transition-colors">Pricing</NuxtLink>
-            <a href="#" class="hover:text-primary-500 transition-colors">Privacy Policy</a>
-            <a href="#" class="hover:text-primary-500 transition-colors">Terms of Service</a>
+            <NuxtLink to="/privacy-policy" class="hover:text-primary-500 transition-colors">Privacy Policy</NuxtLink>
+            <NuxtLink to="/terms-of-service" class="hover:text-primary-500 transition-colors">Terms of Service</NuxtLink>
           </div>
         </div>
       </UContainer>
@@ -153,6 +153,11 @@ const userMenuItems = computed(() => {
       label: 'Admin Board',
       icon: 'i-heroicons-computer-desktop',
       to: '/admin/dashboard'
+    })
+    middleGroup.push({
+      label: 'Module Requests',
+      icon: 'i-heroicons-megaphone',
+      to: '/admin/module-requests'
     })
   }
 

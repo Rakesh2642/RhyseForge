@@ -36,10 +36,18 @@ export default defineEventHandler(async (event) => {
         data: { status: 'UPGRADED' }
       })
 
+      if (updatedSub.plan === 'BEGINNING' && !updatedSub.beginningExamId) {
+        throw createError({
+          statusCode: 400,
+          statusMessage: 'Beginning plan approval requires a selected module.'
+        })
+      }
+
       await prisma.user.update({
         where: { id: userId },
         data: {
           plan: updatedSub.plan,
+          beginningExamId: updatedSub.plan === 'BEGINNING' ? updatedSub.beginningExamId : null,
           planPurchasedAt: new Date()
         }
       })

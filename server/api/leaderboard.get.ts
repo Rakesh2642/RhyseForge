@@ -4,6 +4,10 @@ export default defineEventHandler(async () => {
   // Real-time leaderboard aggregation
   const sessions = await prisma.session.groupBy({
     by: ['userId'],
+    where: {
+      endTime: { not: null },
+      score: { not: null }
+    },
     _sum: {
       score: true
     },

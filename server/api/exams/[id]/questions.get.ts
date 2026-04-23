@@ -15,13 +15,35 @@ export default defineEventHandler(async (event) => {
   const session = getServerSession(event)
 
   let hasFullAccess = false
+  let plan: string = 'FREE'
+  let beginningExamId: string | null = null
   if (session) {
     const user = await prisma.user.findUnique({ 
       where: { id: session.id },
-      select: { plan: true, role: true }
+      select: { plan: true, role: true, beginningExamId: true }
     })
-    // Admins and Paid Users get full access
-    hasFullAccess = user?.role === 'ADMIN' || (user?.plan && user.plan !== 'FREE')
+    plan = user?.plan || 'FREE'
+    beginningExamId = user?.beginningExamId || null
+
+    if (user?.role === 'ADMIN') {
+      hasFullAccess = true
+    } else if (plan === 'ADVANCED' || plan === 'ENTERPRISE') {
+      hasFullAccess = true
+    } else if (plan === 'BEGINNING') {
+      if (!beginningExamId) {
+        throw createError({
+          statusCode: 403,
+          statusMessage: 'Beginning plan is active, but no module is assigned yet. Please contact support/admin.'
+        })
+      }
+      if (beginningExamId !== id) {
+        throw createError({
+          statusCode: 403,
+          statusMessage: 'Beginning plan allows access to only your selected module.'
+        })
+      }
+      hasFullAccess = true
+    }
   }
 
   const where = {
@@ -37,19 +59,31 @@ export default defineEventHandler(async (event) => {
   let effectiveLimit = requestedLimit
   if (!hasFullAccess) {
     effectiveLimit = 10
-    console.log(`[AUTH] Limited access for ${session?.email || 'Guest'}: FREE Plan / No Session - Tier: 10 Qs`)
+    console.log(`[AUTH] Limited access for ${session?.email || 'Guest'}: ${plan} plan - Tier: 10 Qs`)
   }
 
   let questions: any[] = []
 
   if (shouldShuffle) {
-    questions = await prisma.$queryRawUnsafe(`
-      SELECT id, examId, question, options, topic, difficulty, answer, explanation
-      FROM Question
-      WHERE examId = '${id}' AND status = 'published'
-      ORDER BY RANDOM()
-      ${effectiveLimit > 0 ? `LIMIT ${effectiveLimit}` : ''}
-    `)
+    const allQuestions = await prisma.question.findMany({
+      where,
+      select: {
+        id: true,
+        examId: true,
+        question: true,
+        options: true,
+        topic: true,
+        difficulty: true,
+        answer: true,
+        explanation: true
+      }
+    })
+    const shuffled = [...allQuestions]
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1))
+      ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+    }
+    questions = effectiveLimit > 0 ? shuffled.slice(0, effectiveLimit) : shuffled
   } else {
     questions = await prisma.question.findMany({
       where,

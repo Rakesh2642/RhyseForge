@@ -32,11 +32,11 @@ export const useExam = (examId: string) => {
     }
   }
 
-  const startSession = async (userId: string, mode = 'practice') => {
+  const startSession = async (mode = 'practice') => {
     try {
       const session = await $fetch<{ id: string }>('/api/sessions', {
         method: 'POST',
-        body: { examId, userId, mode }
+        body: { examId, mode }
       })
       sessionId.value = session.id
     } catch (error) {

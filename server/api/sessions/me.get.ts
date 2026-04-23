@@ -1,18 +1,22 @@
+import { defineEventHandler, createError } from 'h3'
+import { getServerSession } from '~/server/utils/auth'
+import prisma from '~/server/utils/prisma'
+
 export default defineEventHandler(async (event) => {
-  // Manual session extraction to avoid #auth resolution issues during dev
-  const authHeader = getHeader(event, 'Authorization')
-  let sessionUser = { email: 'admin@examforge.com' } // Mock fallback for dev
-  
-  if (authHeader?.includes('mock-jwt-token-user')) {
-    sessionUser = { email: 'user@examforge.com' }
+  const session = getServerSession(event)
+
+  if (!session) {
+    throw createError({ statusCode: 401, statusMessage: 'Not authenticated' })
   }
 
-
   const user = await prisma.user.findUnique({
-    where: { email: sessionUser.email }
+    where: { id: session.id },
+    select: { id: true }
   })
 
-  if (!user) return []
+  if (!user) {
+    throw createError({ statusCode: 404, statusMessage: 'User not found' })
+  }
 
   const sessions = await prisma.session.findMany({
     where: {
@@ -26,8 +30,7 @@ export default defineEventHandler(async (event) => {
     },
     orderBy: {
       endTime: 'desc'
-    },
-    take: 10
+    }
   })
 
   return sessions

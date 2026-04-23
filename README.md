@@ -56,7 +56,7 @@ The platform includes a complete **Admin Panel** to manage exams, an **AI-Powere
 |---|---|
 | **Framework** | [Nuxt 3](https://nuxt.com/) (Vue 3 + Nitro Server Engine) |
 | **UI Library** | [Nuxt UI](https://ui.nuxt.com/) (Heroicons, TailwindCSS) |
-| **Database** | SQLite (via Prisma ORM) |
+| **Database** | PostgreSQL (via Prisma ORM) |
 | **Authentication** | [@sidebase/nuxt-auth](https://sidebase.io/nuxt-auth/) (Local Provider) |
 | **State Management** | [Pinia](https://pinia.vuejs.org/) |
 | **Language** | TypeScript / Vue 3 Composition API |
@@ -148,7 +148,7 @@ The platform will be available at **http://localhost:3000**
 
 ## 🗄️ Database Schema
 
-RhyseForge uses **SQLite** with **Prisma ORM** for zero-configuration local development.
+RhyseForge uses **PostgreSQL** with **Prisma ORM** for shared local + production data.
 
 ```
 ┌──────────┐     ┌──────────┐     ┌───────────┐
@@ -218,8 +218,8 @@ Create a `.env` file in the root directory:
 # Authentication
 NUXT_SECRET=your-secret-key-here
 
-# Database (default SQLite)
-DATABASE_URL="file:./prisma/dev.db"
+# Database (PostgreSQL)
+DATABASE_URL="postgresql://USER:PASSWORD@HOST:5432/DBNAME?sslmode=require"
 ```
 
 ---

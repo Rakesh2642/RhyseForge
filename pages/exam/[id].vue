@@ -526,7 +526,7 @@ const startExamSession = async () => {
     }
 
     await loadQuestions({ shuffle, limit, offset })
-    await startSession('dummy-user-1234-5678', sessionMode.value)
+    await startSession(sessionMode.value)
     
     // Initialize Timer for Mock Mode (90 seconds per question)
     if (sessionMode.value === 'mock') {

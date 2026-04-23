@@ -23,6 +23,7 @@ export default defineEventHandler(async (event) => {
       data: {
         role: body.role,
         plan: body.plan,
+        beginningExamId: body.plan === 'BEGINNING' ? (body.beginningExamId || null) : null,
         // If boundDeviceId is empty string, convert to null to clear it
         boundDeviceId: body.boundDeviceId?.trim() ? body.boundDeviceId : null
       }

@@ -12,6 +12,9 @@ export default defineEventHandler(async (event) => {
   const user = await prisma.user.findUnique({
     where: { id: session.id },
     include: {
+      beginningExam: {
+        select: { id: true, title: true, certificationCode: true }
+      },
       subscriptions: {
         where: { status: 'ACTIVE' },
         orderBy: { purchasedAt: 'desc' },
@@ -25,7 +28,7 @@ export default defineEventHandler(async (event) => {
   }
 
   // ── Device fingerprint verification (anti-sharing on every request) ──
-  if (user.boundDeviceId && session.deviceId && user.boundDeviceId !== session.deviceId) {
+  if (user.role !== 'ADMIN' && user.boundDeviceId && session.deviceId && user.boundDeviceId !== session.deviceId) {
     return { user: null } // Force re-login on mismatched device
   }
 
@@ -38,6 +41,7 @@ export default defineEventHandler(async (event) => {
       email: user.email,
       role: user.role,
       plan: user.plan || 'FREE',
+      beginningModule: user.beginningExam || null,
       phone: user.phone,
       // Mask device ID for security — only show last 4 chars
       boundDeviceId: user.boundDeviceId

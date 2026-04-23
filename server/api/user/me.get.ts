@@ -11,6 +11,9 @@ export default defineEventHandler(async (event) => {
   const user = await prisma.user.findUnique({
     where: { id: session.id },
     include: {
+      beginningExam: {
+        select: { id: true, title: true, certificationCode: true }
+      },
       _count: {
         select: { sessions: true }
       },
@@ -35,6 +38,7 @@ export default defineEventHandler(async (event) => {
     ...safeUser,
     name: user.name || user.email.split('@')[0],
     image: null,
+    beginningModule: user.beginningExam || null,
     boundDeviceId: user.boundDeviceId
       ? '••••' + user.boundDeviceId.slice(-4)
       : null,

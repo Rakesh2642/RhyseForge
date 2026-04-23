@@ -1,5 +1,6 @@
-import { defineEventHandler, readBody, createError, getHeader } from 'h3'
+import { defineEventHandler, readBody, createError } from 'h3'
 import prisma from '~/server/utils/prisma'
+import { getServerSession, verifyPassword } from '~/server/utils/auth'
 
 export default defineEventHandler(async (event) => {
   const id = event.context.params?.id
@@ -9,29 +10,21 @@ export default defineEventHandler(async (event) => {
   if (!id) throw createError({ statusCode: 400, statusMessage: 'Exam ID missing' })
   if (!password) throw createError({ statusCode: 400, statusMessage: 'Admin password required for verification' })
 
-  // Defensive session detection as used in other server routes
-  const authHeader = getHeader(event, 'Authorization')
-  let sessionEmail = 'admin@examforge.com' // Mock fallback for dev
-  
-  if (authHeader?.includes('mock-jwt-token-user')) {
-    sessionEmail = 'user@examforge.com'
+  const session = getServerSession(event)
+  if (!session) {
+    throw createError({ statusCode: 401, statusMessage: 'Not authenticated' })
   }
 
-  // 3. Verify User exists and is ADMIN
-  let user = await prisma.user.findUnique({
-    where: { email: sessionEmail }
+  const user = await prisma.user.findUnique({
+    where: { id: session.id }
   })
 
-  // Dev Fallback: If user is missing from DB, allow deletion with default password
-  let dbPassword = user?.password
-  if (!user && sessionEmail === 'admin@examforge.com') {
-    dbPassword = 'admin123' 
-  } else if (!user) {
-    throw createError({ statusCode: 403, statusMessage: 'Forbidden: Admin access missing from database' })
+  if (!user || user.role !== 'ADMIN') {
+    throw createError({ statusCode: 403, statusMessage: 'Admin access required' })
   }
 
   // 4. Verify password
-  if (dbPassword !== password) {
+  if (!verifyPassword(password, user.password)) {
      throw createError({ statusCode: 400, statusMessage: 'Invalid admin password' })
   }
 

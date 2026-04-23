@@ -24,6 +24,10 @@ export default defineEventHandler(async (event) => {
         phone: true,
         role: true,
         plan: true,
+        beginningExamId: true,
+        beginningExam: {
+          select: { id: true, title: true, certificationCode: true }
+        },
         boundDeviceId: true,
         planPurchasedAt: true,
         createdAt: true,

@@ -24,6 +24,32 @@
         </div>
       </div>
 
+      <!-- Critical Purchase Disclaimer -->
+      <div class="max-w-5xl mx-auto px-4 mb-10">
+        <div class="rounded-3xl border border-amber-200 dark:border-amber-900/40 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/20 p-6 md:p-8">
+          <div class="flex items-start gap-4">
+            <div class="w-11 h-11 rounded-xl bg-amber-500/10 flex items-center justify-center flex-shrink-0">
+              <UIcon name="i-heroicons-shield-exclamation" class="text-2xl text-amber-600 dark:text-amber-400" />
+            </div>
+            <div>
+              <h2 class="text-lg md:text-xl font-black text-gray-900 dark:text-white">Please Read Before Payment</h2>
+              <ul class="mt-3 space-y-1.5 text-sm text-gray-700 dark:text-gray-300">
+                <li>1. Questions are for practice and may include previous exam-style patterns.</li>
+                <li>2. Passing the real certification exam is not guaranteed.</li>
+                <li>3. Relying only on this question bank is your own decision and risk.</li>
+                <li>4. After plan activation, payments are generally non-refundable unless required by law or billing error.</li>
+              </ul>
+              <p class="mt-3 text-xs text-gray-500 dark:text-gray-400">
+                See full details in
+                <NuxtLink to="/terms-of-service" class="text-primary-500 hover:underline font-semibold">Terms of Service</NuxtLink>
+                and
+                <NuxtLink to="/privacy-policy" class="text-primary-500 hover:underline font-semibold">Privacy Policy</NuxtLink>.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Pricing Cards -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 max-w-6xl mx-auto px-4 mb-20">
 
@@ -274,6 +300,18 @@
             </div>
           </div>
 
+          <div v-if="selectedPlan === 'BEGINNING'" class="p-4 rounded-2xl bg-blue-50 dark:bg-blue-900/10 border border-blue-200 dark:border-blue-800">
+            <p class="text-xs font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest mb-2">Select Your Module</p>
+            <USelect
+              v-model="selectedBeginningExamId"
+              :options="beginningModuleOptions"
+              option-attribute="label"
+              value-attribute="value"
+              placeholder="Choose one certification module"
+            />
+            <p class="text-[11px] text-blue-600/80 mt-2">Beginning plan will unlock only this module.</p>
+          </div>
+
           <div class="p-3 rounded-xl bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800">
             <p class="text-xs text-amber-700 dark:text-amber-400 flex items-start gap-2">
               <UIcon name="i-heroicons-exclamation-triangle" class="flex-shrink-0 mt-0.5" />
@@ -320,9 +358,9 @@
           <div class="w-20 h-20 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mx-auto mb-4">
             <UIcon name="i-heroicons-check-circle" class="text-4xl text-green-500" />
           </div>
-          <h3 class="text-2xl font-black text-gray-900 dark:text-white mb-2">Purchase Successful!</h3>
+          <h3 class="text-2xl font-black text-gray-900 dark:text-white mb-2">Request Submitted!</h3>
           <p class="text-sm text-gray-500 mb-6">
-            Your <strong>{{ selectedPlanDetails?.name }}</strong> plan is now active and bound to this device.
+            Your <strong>{{ selectedPlanDetails?.name }}</strong> request is pending admin approval.
           </p>
           <UButton color="primary" size="lg" class="rounded-xl font-black px-8" to="/dashboard">
             Go to Dashboard
@@ -345,10 +383,12 @@ const PLANS = {
 }
 
 const PLAN_RANK = { FREE: 0, BEGINNING: 1, ADVANCED: 2, ENTERPRISE: 3 }
+const { data: examCatalog } = useFetch('/api/exams', { params: { limit: 100 } })
 
 const currentPlan = computed(() => data.value?.user?.plan || 'FREE')
 const purchasingPlan = ref('')
 const selectedPlan = ref('')
+const selectedBeginningExamId = ref('')
 const showConfirmModal = ref(false)
 const showSuccessModal = ref(false)
 const confirmingPurchase = ref(false)
@@ -357,6 +397,14 @@ const purchaseError = ref('')
 const selectedPlanDetails = computed(() =>
   selectedPlan.value ? PLANS[selectedPlan.value] : null
 )
+
+const beginningModuleOptions = computed(() => {
+  const exams = examCatalog.value?.exams || []
+  return exams.map((exam) => ({
+    label: `${exam.title} (${exam.certificationCode || 'N/A'})`,
+    value: exam.id
+  }))
+})
 
 const maskedDeviceId = computed(() => {
   if (typeof window === 'undefined') return '••••••••'
@@ -378,6 +426,7 @@ const handlePurchase = (plan) => {
   }
 
   selectedPlan.value = plan
+  selectedBeginningExamId.value = ''
   purchaseError.value = ''
   showConfirmModal.value = true
 }
@@ -390,6 +439,13 @@ const confirmPurchase = async () => {
   try {
     const deviceId = getDeviceId()
 
+    if (selectedPlan.value === 'BEGINNING' && !selectedBeginningExamId.value) {
+      purchaseError.value = 'Please select one module for the Beginning plan.'
+      confirmingPurchase.value = false
+      purchasingPlan.value = ''
+      return
+    }
+
     await $fetch('/api/subscription/purchase', {
       method: 'POST',
       headers: {
@@ -397,7 +453,8 @@ const confirmPurchase = async () => {
       },
       body: {
         plan: selectedPlan.value,
-        deviceId
+        deviceId,
+        examId: selectedPlan.value === 'BEGINNING' ? selectedBeginningExamId.value : undefined
       }
     })
 
@@ -408,8 +465,8 @@ const confirmPurchase = async () => {
     await getSession()
 
     toast.add({
-      title: 'Plan Activated!',
-      description: `Your ${PLANS[selectedPlan.value].name} plan is now active.`,
+      title: 'Request Sent!',
+      description: `${PLANS[selectedPlan.value].name} plan request submitted for admin approval.`,
       icon: 'i-heroicons-check-circle',
       color: 'green'
     })
@@ -444,7 +501,11 @@ const faqItems = [
   },
   {
     label: 'Is there a refund policy?',
-    content: 'We offer a 7-day money-back guarantee on all plans. If you are not satisfied with RhyseForge, contact us within 7 days for a full refund.'
+    content: 'After subscription activation, payments are generally non-refundable except for duplicate payment or verified billing errors. If you have a billing issue, contact support@rhyseforge.com.'
+  },
+  {
+    label: 'Are these real exam questions?',
+    content: 'This platform provides practice questions, including prior exam-style patterns and training material. It is designed to improve preparation, but it does not guarantee exact real exam coverage or pass results.'
   },
   {
     label: 'How does the mock exam timer work?',

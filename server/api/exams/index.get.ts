@@ -1,8 +1,10 @@
 import { defineEventHandler, getQuery } from 'h3'
 import prisma from '~/server/utils/prisma'
+import { getServerSession } from '~/server/utils/auth'
 
 export default defineEventHandler(async (event) => {
   const query = getQuery(event)
+  const session = getServerSession(event)
   
   // Basic pagination and filtering
   const page = Number(query.page) || 1
@@ -11,6 +13,14 @@ export default defineEventHandler(async (event) => {
 
   const where = {
     status: 'published'
+  }
+
+  let currentUser: { role: string; plan: string; beginningExamId: string | null } | null = null
+  if (session) {
+    currentUser = await prisma.user.findUnique({
+      where: { id: session.id },
+      select: { role: true, plan: true, beginningExamId: true }
+    })
   }
 
   const [exams, total] = await Promise.all([
@@ -38,7 +48,13 @@ export default defineEventHandler(async (event) => {
       }
       return {
         ...e,
-        categoryTags: parsedTags
+        categoryTags: parsedTags,
+        canAccess:
+          !currentUser ||
+          currentUser.role === 'ADMIN' ||
+          currentUser.plan !== 'BEGINNING' ||
+          !currentUser.beginningExamId ||
+          currentUser.beginningExamId === e.id
       }
     }),
     meta: {

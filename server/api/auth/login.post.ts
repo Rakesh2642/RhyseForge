@@ -49,7 +49,7 @@ export default defineEventHandler(async (event) => {
   //  • If device matches → proceed normally.
   // ────────────────────────────────────────────────────
 
-  if (user.boundDeviceId && user.boundDeviceId !== deviceId) {
+  if (user.role !== 'ADMIN' && user.boundDeviceId && user.boundDeviceId !== deviceId) {
     throw createError({
       statusCode: 403,
       statusMessage: 'This account is bound to another device. Each subscription can only be used on one device for security. Contact support@rhyseforge.com to request a device transfer.'
@@ -57,7 +57,7 @@ export default defineEventHandler(async (event) => {
   }
 
   // First login — bind device
-  if (!user.boundDeviceId) {
+  if (user.role !== 'ADMIN' && !user.boundDeviceId) {
     await prisma.user.update({
       where: { id: user.id },
       data: { boundDeviceId: deviceId }

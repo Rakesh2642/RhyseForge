@@ -19,7 +19,7 @@
             <UIcon name="i-heroicons-fire" class="text-5xl opacity-80" />
             <div>
               <p class="text-orange-100 text-sm font-medium">Study Streak</p>
-              <h2 class="text-4xl font-extrabold">3 Days</h2>
+              <h2 class="text-4xl font-extrabold">{{ studyStreak }} Days</h2>
             </div>
           </div>
         </UCard>
@@ -62,7 +62,7 @@
             No exams taken yet. Start practicing!
           </div>
 
-          <UTable v-else :columns="historyColumns" :rows="sessions">
+          <UTable v-else :columns="historyColumns" :rows="recentSessions">
             <template #exam-data="{ row }">
               <span class="font-medium text-gray-900 dark:text-white">{{ row.exam.title }}</span>
             </template>
@@ -97,7 +97,7 @@
           </div>
           
           <div class="mt-8 text-center">
-            <UButton block color="gray" variant="soft" icon="i-heroicons-arrow-path" class="rounded-xl font-bold">Update Stats</UButton>
+            <UButton block color="gray" variant="soft" icon="i-heroicons-arrow-path" class="rounded-xl font-bold" @click="refresh()">Update Stats</UButton>
           </div>
         </UCard>
       </div>
@@ -128,7 +128,12 @@ const historyColumns = [
   { key: 'date', label: 'Date' }
 ]
 
-const { data: sessions, pending } = useFetch('/api/sessions/me')
+const { data: sessions, pending, refresh } = useFetch('/api/sessions/me')
+
+const recentSessions = computed(() => {
+  if (!sessions.value) return []
+  return sessions.value.slice(0, 10)
+})
 
 const avgScore = computed(() => {
   if (!sessions.value || sessions.value.length === 0) return 0
@@ -151,6 +156,33 @@ const examMastery = computed(() => {
   })
   
   return Object.values(examMap).slice(0, 4)
+})
+
+const studyStreak = computed(() => {
+  if (!sessions.value || sessions.value.length === 0) return 0
+
+  const daySet = new Set(
+    sessions.value
+      .map((s) => new Date(s.endTime || s.startTime).toISOString().slice(0, 10))
+  )
+
+  const sortedDays = [...daySet].sort((a, b) => b.localeCompare(a))
+  let streak = 0
+  let cursor = new Date()
+  cursor.setHours(0, 0, 0, 0)
+
+  for (const day of sortedDays) {
+    const dayStr = cursor.toISOString().slice(0, 10)
+    if (day === dayStr) {
+      streak++
+      cursor.setDate(cursor.getDate() - 1)
+    } else if (day > dayStr) {
+      continue
+    } else {
+      break
+    }
+  }
+  return streak
 })
 </script>
 

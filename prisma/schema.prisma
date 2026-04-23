@@ -4,8 +4,8 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 // ─────────────────────────────────────────────────────────
@@ -22,11 +22,13 @@ model User {
   boundDeviceId   String?        // Fingerprint of the first device that logged in
   // ── Subscription ──
   plan            String         @default("FREE") // FREE, BEGINNING, ADVANCED, ENTERPRISE
+  beginningExamId String?
   planPurchasedAt DateTime?
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
   sessions        Session[]
   subscriptions   Subscription[]
+  beginningExam   Exam?          @relation("BeginningPlanExam", fields: [beginningExamId], references: [id])
 }
 
 // ─────────────────────────────────────────────────────────
@@ -36,6 +38,8 @@ model Subscription {
   id          String    @id @default(uuid())
   userId      String
   user        User      @relation(fields: [userId], references: [id])
+  beginningExamId String?
+  beginningExam Exam?   @relation("BeginningSubscriptionExam", fields: [beginningExamId], references: [id])
   plan        String    // BEGINNING, ADVANCED, ENTERPRISE
   amount      Int       // price in INR (200, 500, 5000)
   currency    String    @default("INR")
@@ -61,6 +65,8 @@ model Exam {
   updatedAt         DateTime   @updatedAt
   questions         Question[]
   sessions          Session[]
+  beginningUsers    User[]     @relation("BeginningPlanExam")
+  beginningSubscriptions Subscription[] @relation("BeginningSubscriptionExam")
 }
 
 model Question {
@@ -91,4 +97,24 @@ model Session {
   startTime DateTime @default(now())
   endTime   DateTime?
   mode      String   @default("practice") // practice, mock, etc.
+}
+
+model ModuleRequest {
+  id           String   @id @default(uuid())
+  name         String
+  email        String
+  moduleName   String
+  provider     String?
+  urgency      String   @default("LATER") // ASAP, THIS_MONTH, LATER
+  preorderReady Boolean @default(false)
+  notes        String?
+  status       String   @default("NEW") // NEW, IN_REVIEW, PLANNED, RELEASED, REJECTED
+  adminNotes   String?
+  requestedAt  DateTime @default(now())
+  resolvedAt   DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([status, requestedAt])
+  @@index([email, moduleName])
 }

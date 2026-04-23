@@ -13,7 +13,7 @@ export default defineEventHandler(async (event) => {
   }
 
   // Fire ALL queries in parallel for maximum speed
-  const [userCount, examCount, sessionsToday, passedCount, totalCompleted] = await Promise.all([
+  const [userCount, examCount, sessionsToday, passedCount, totalCompleted, pendingModuleRequests] = await Promise.all([
     prisma.user.count(),
     prisma.exam.count({ where: { status: 'published' } }),
     prisma.session.count({
@@ -26,6 +26,9 @@ export default defineEventHandler(async (event) => {
     }),
     prisma.session.count({
       where: { endTime: { not: null } }
+    }),
+    prisma.moduleRequest.count({
+      where: { status: { in: ['NEW', 'IN_REVIEW', 'PLANNED'] } }
     })
   ])
 
@@ -37,6 +40,7 @@ export default defineEventHandler(async (event) => {
     userCount: userCount.toLocaleString(),
     examCount: examCount.toLocaleString(),
     sessionsToday: sessionsToday.toLocaleString(),
-    passRate: `${passRate}%`
+    passRate: `${passRate}%`,
+    pendingModuleRequests: pendingModuleRequests.toLocaleString()
   }
 })
